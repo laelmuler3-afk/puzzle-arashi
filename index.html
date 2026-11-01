@@ -1,1 +1,1196 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#17100d" />
+<title>Painel da Montanha dos Sussurros</title>
+
+<style>
+:root {
+  --wood:#3b241a;
+  --stone:#c7b79a;
+  --stone-2:#a9997d;
+  --ink:#5a241f;
+  --gold:#d6b36a;
+  --gap:10px;
+  --move:190ms;
+}
+
+* {
+  box-sizing:border-box;
+}
+
+html, body {
+  margin:0;
+  width:100%;
+  min-height:100%;
+  background:
+    radial-gradient(circle at 50% 12%, rgba(184,119,60,.13), transparent 30%),
+    linear-gradient(180deg, #17100d 0%, #241711 55%, #120d0b 100%);
+  color:#f1e4cf;
+  font-family:Georgia, "Times New Roman", serif;
+  overscroll-behavior:none;
+}
+
+body {
+  min-height:100dvh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:clamp(16px,3vw,32px);
+  overflow:hidden;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-touch-callout:none;
+}
+
+.app {
+  width:min(94vw,760px);
+  display:grid;
+  justify-items:center;
+  gap:clamp(12px,2vw,20px);
+}
+
+.riddle {
+  max-width:720px;
+  text-align:center;
+  font-size:clamp(15px,2.3vw,24px);
+  line-height:1.35;
+  color:#e9d9bf;
+  text-shadow:0 1px 0 #000;
+  margin:0;
+}
+
+.panel-shell {
+  width:min(80vw,650px,72dvh);
+  aspect-ratio:1/1;
+  padding:clamp(16px,3vw,28px);
+  border-radius:24px;
+
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.04),transparent 22%),
+    repeating-linear-gradient(
+      100deg,
+      rgba(255,255,255,.02) 0 4px,
+      rgba(0,0,0,.03) 4px 10px
+    ),
+    linear-gradient(145deg,#43291e,#25150f 62%,#503020);
+
+  border:clamp(5px,.8vw,8px) solid #1b100c;
+
+  box-shadow:
+    0 18px 50px rgba(0,0,0,.55),
+    inset 0 0 0 3px #7b5838,
+    inset 0 0 0 8px #2a1812,
+    inset 0 0 40px rgba(0,0,0,.45);
+
+  position:relative;
+}
+
+.panel-shell::before,
+.panel-shell::after {
+  content:"";
+  position:absolute;
+  inset:8px;
+  border-radius:17px;
+  pointer-events:none;
+}
+
+.panel-shell::before {
+  border:2px solid rgba(201,165,110,.42);
+}
+
+.panel-shell::after {
+  inset:18px;
+  border:1px dashed rgba(214,179,106,.2);
+}
+
+.board-frame {
+  width:100%;
+  height:100%;
+  padding:clamp(10px,1.6vw,16px);
+  border-radius:15px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #9a7348 0%,
+      #4c3524 12%,
+      #2a1b15 50%,
+      #68472d 88%,
+      #ad8252 100%
+    );
+
+  box-shadow:
+    inset 0 0 0 3px #20140f,
+    inset 0 0 0 7px rgba(213,172,105,.18),
+    0 0 22px rgba(0,0,0,.35);
+
+  position:relative;
+}
+
+#board {
+  position:relative;
+  width:100%;
+  height:100%;
+  border-radius:9px;
+  overflow:hidden;
+
+  background:
+    linear-gradient(rgba(255,255,255,.015),rgba(0,0,0,.08)),
+    #17100d;
+
+  box-shadow:inset 0 0 24px rgba(0,0,0,.7);
+
+  touch-action:none;
+}
+
+.slot-hint {
+  position:absolute;
+  left:0;
+  width:100%;
+  top:33.333%;
+  height:33.333%;
+  pointer-events:none;
+
+  border-top:1px solid rgba(214,179,106,.26);
+  border-bottom:1px solid rgba(214,179,106,.26);
+
+  z-index:1;
+}
+
+.tile {
+  position:absolute;
+  left:0;
+  top:0;
+
+  width:calc(33.333333% - var(--gap));
+  height:calc(33.333333% - var(--gap));
+
+  margin:calc(var(--gap) / 2);
+
+  border-radius:8px;
+
+  display:grid;
+  place-items:center;
+
+  cursor:pointer;
+  touch-action:none;
+
+  transition:
+    transform var(--move) cubic-bezier(.22,.8,.22,1),
+    box-shadow var(--move),
+    filter var(--move);
+
+  background:
+    radial-gradient(circle at 28% 24%,rgba(255,255,255,.12),transparent 22%),
+    repeating-linear-gradient(
+      112deg,
+      rgba(85,67,46,.07) 0 2px,
+      transparent 2px 8px
+    ),
+    linear-gradient(145deg,var(--stone),var(--stone-2));
+
+  border:2px solid #7f6d55;
+
+  box-shadow:
+    inset 0 0 0 2px rgba(240,225,193,.18),
+    inset 0 -8px 18px rgba(78,54,35,.13),
+    0 5px 9px rgba(0,0,0,.36);
+
+  z-index:3;
+}
+
+.tile::after {
+  content:"";
+  position:absolute;
+  inset:5px;
+  border:1px solid rgba(84,55,38,.18);
+  border-radius:5px;
+}
+
+.tile svg {
+  width:67%;
+  height:67%;
+  pointer-events:none;
+}
+
+.tile svg * {
+  vector-effect:non-scaling-stroke;
+  stroke:var(--ink);
+  fill:none;
+  stroke-width:5.5;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.tile.success {
+  box-shadow:
+    inset 0 0 0 2px rgba(255,239,184,.32),
+    0 0 22px rgba(214,179,106,.75),
+    0 0 48px rgba(214,179,106,.32);
+
+  filter:brightness(1.09);
+}
+
+.panel-shell.solved {
+  animation:unlock .7s ease;
+}
+
+@keyframes unlock {
+  0% { transform:translateY(0); }
+  20% { transform:translateY(2px); }
+  40% { transform:translateY(-2px); }
+  60% { transform:translateY(1px); }
+  100% { transform:translateY(0); }
+}
+
+.success-message {
+  min-height:36px;
+  display:grid;
+  place-items:center;
+
+  opacity:0;
+  transform:translateY(5px);
+
+  transition:.28s ease;
+
+  color:#e8c985;
+  font-weight:bold;
+  letter-spacing:.13em;
+
+  font-size:clamp(14px,2.1vw,21px);
+}
+
+.success-message.show {
+  opacity:1;
+  transform:translateY(0);
+}
+
+.controls {
+  width:min(80vw,650px,72dvh);
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+}
+
+button {
+  appearance:none;
+
+  border:1px solid rgba(201,165,110,.42);
+  color:#d9c3a1;
+  background:rgba(39,24,18,.78);
+
+  border-radius:9px;
+  padding:9px 12px;
+
+  font:600 12px Georgia,serif;
+
+  cursor:pointer;
+}
+
+button:active {
+  transform:translateY(1px);
+}
+
+@media (max-height:700px) and (orientation:landscape) {
+  body {
+    padding:10px;
+  }
+
+  .app {
+    gap:8px;
+  }
+
+  .riddle {
+    font-size:14px;
+  }
+
+  .panel-shell {
+    width:min(62dvh,520px);
+  }
+
+  .controls {
+    width:min(62dvh,520px);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<main class="app">
+
+<p class="riddle">
+“Todo espetáculo começa quando alguém vê, continua quando alguém ouve e termina quando alguém responde.”
+</p>
+
+<section class="panel-shell" id="shell">
+
+  <div class="board-frame">
+
+    <div id="board">
+
+      <div class="slot-hint"></div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<div class="success-message" id="success">
+MECANISMO DESATIVADO
+</div>
+
+<div class="controls">
+
+  <button id="soundBtn">
+    SOM: ON
+  </button>
+
+  <button id="fullscreenBtn">
+    TELA CHEIA
+  </button>
+
+  <button id="resetBtn">
+    REINICIAR
+  </button>
+
+</div>
+
+</main>
+
+<script>
+(() => {
+
+"use strict";
+
+const SVG = {
+
+mountain: `
+<svg viewBox="0 0 100 100">
+<path d="M10 78 39 34 52 53 66 27 91 78"/>
+<path d="m30 48 9-14 7 11 6-8 8 12"/>
+</svg>`,
+
+mouth: `
+<svg viewBox="0 0 100 100">
+<path d="M16 52c13-4 21-15 34-15s22 11 34 15c-12 5-20 14-34 14S28 57 16 52Z"/>
+<path d="M18 52c18 2 46 2 64 0"/>
+</svg>`,
+
+flame: `
+<svg viewBox="0 0 100 100">
+<path d="M52 12c6 15-8 22 1 34 6-8 14-11 15-23 13 15 20 28 14 43-6 16-21 23-34 21-18-3-30-18-27-35 2-13 12-22 23-34-1 12 2 20 8 28 8-9 10-19 0-34Z"/>
+</svg>`,
+
+eye: `
+<svg viewBox="0 0 100 100">
+<path d="M11 51c13-18 27-26 39-26s27 8 39 26c-13 18-27 25-39 25S24 69 11 51Z"/>
+<circle cx="50" cy="51" r="14"/>
+<circle cx="50" cy="51" r="5" fill="#5a241f" stroke="none"/>
+</svg>`,
+
+leaf: `
+<svg viewBox="0 0 100 100">
+<path d="M18 72C18 38 39 18 79 20c3 38-16 60-49 61"/>
+<path d="M24 77c17-21 31-32 52-49"/>
+</svg>`,
+
+moon: `
+<svg viewBox="0 0 100 100">
+<path d="M67 18c-26 5-39 35-25 56 9 13 27 18 42 10-30 0-44-38-17-66Z"/>
+</svg>`,
+
+ear: `
+<svg viewBox="0 0 100 100">
+<path d="M55 15c20 0 31 15 28 33-2 12-10 18-18 24-7 5-8 14-19 14-12 0-20-9-19-21 1-9 7-14 14-19 5-4 6-12 2-17-3-5-10-6-14-1"/>
+<path d="M54 35c9-5 19 1 18 10-1 9-11 11-16 18-4 5-2 11-9 14"/>
+</svg>`,
+
+drop: `
+<svg viewBox="0 0 100 100">
+<path d="M50 13c-5 13-26 31-26 50 0 15 11 25 26 25s26-10 26-25c0-19-21-37-26-50Z"/>
+</svg>`
+
+};
+
+const labels = {
+  mountain:"montanha",
+  mouth:"boca",
+  flame:"chama",
+  eye:"olho",
+  leaf:"folha",
+  moon:"lua",
+  ear:"ouvido",
+  drop:"gota"
+};
+
+const solvedBase = [
+  "mountain",
+  "flame",
+  "leaf",
+
+  "eye",
+  "ear",
+  "mouth",
+
+  "moon",
+  "drop",
+  null
+];
+
+let grid = solvedBase.slice();
+
+let locked = false;
+
+let soundOn = true;
+
+let audioCtx = null;
+
+let pointerStart = null;
+
+let pointerTile = null;
+
+const board =
+document.getElementById("board");
+
+const shell =
+document.getElementById("shell");
+
+const successEl =
+document.getElementById("success");
+
+const resetBtn =
+document.getElementById("resetBtn");
+
+const soundBtn =
+document.getElementById("soundBtn");
+
+const fullscreenBtn =
+document.getElementById("fullscreenBtn");
+
+const tileEls = new Map();
+
+function createTiles(){
+
+Object.keys(SVG).forEach(id => {
+
+const tile =
+document.createElement("button");
+
+tile.className = "tile";
+
+tile.dataset.id = id;
+
+tile.setAttribute(
+"aria-label",
+labels[id]
+);
+
+tile.innerHTML = SVG[id];
+
+tile.addEventListener(
+"pointerdown",
+onPointerDown
+);
+
+tile.addEventListener(
+"pointerup",
+onPointerUp
+);
+
+tile.addEventListener(
+"pointercancel",
+clearPointer
+);
+
+board.appendChild(tile);
+
+tileEls.set(id,tile);
+
+});
+
+}
+
+function indexToXY(index){
+
+return {
+
+row:
+Math.floor(index / 3),
+
+col:
+index % 3
+
+};
+
+}
+
+function positionFor(index){
+
+const {
+row,
+col
+} =
+indexToXY(index);
+
+return `
+translate3d(
+${col * 100}%,
+${row * 100}%,
+0
+)
+`;
+
+}
+
+function render(){
+
+for(
+const [id,el]
+of tileEls
+){
+
+const index =
+grid.indexOf(id);
+
+el.style.transform =
+positionFor(index);
+
+el.classList.remove(
+"success"
+);
+
+}
+
+}
+
+function isAdjacent(a,b){
+
+const A =
+indexToXY(a);
+
+const B =
+indexToXY(b);
+
+return (
+
+Math.abs(
+A.row - B.row
+)
+
++
+
+Math.abs(
+A.col - B.col
+)
+
+=== 1
+
+);
+
+}
+
+function canMove(id){
+
+if(locked)
+return false;
+
+const tileIndex =
+grid.indexOf(id);
+
+const blankIndex =
+grid.indexOf(null);
+
+return isAdjacent(
+tileIndex,
+blankIndex
+);
+
+}
+
+function moveTile(id){
+
+if(!canMove(id))
+return;
+
+locked = true;
+
+ensureAudio();
+
+playMoveSound();
+
+const tileIndex =
+grid.indexOf(id);
+
+const blankIndex =
+grid.indexOf(null);
+
+[
+grid[tileIndex],
+grid[blankIndex]
+]
+=
+[
+grid[blankIndex],
+grid[tileIndex]
+];
+
+render();
+
+setTimeout(() => {
+
+locked = false;
+
+validateSolution();
+
+},210);
+
+}
+
+function onPointerDown(e){
+
+if(locked)
+return;
+
+e.preventDefault();
+
+ensureAudio();
+
+pointerTile =
+e.currentTarget.dataset.id;
+
+pointerStart = {
+
+x:e.clientX,
+y:e.clientY
+
+};
+
+}
+
+function onPointerUp(e){
+
+if(
+!pointerStart
+||
+!pointerTile
+)
+return;
+
+e.preventDefault();
+
+const id =
+pointerTile;
+
+const dx =
+e.clientX
+-
+pointerStart.x;
+
+const dy =
+e.clientY
+-
+pointerStart.y;
+
+const distance =
+Math.hypot(dx,dy);
+
+if(!canMove(id)){
+
+clearPointer();
+
+return;
+
+}
+
+const tileIndex =
+grid.indexOf(id);
+
+const blankIndex =
+grid.indexOf(null);
+
+const T =
+indexToXY(tileIndex);
+
+const B =
+indexToXY(blankIndex);
+
+const expectedX =
+B.col - T.col;
+
+const expectedY =
+B.row - T.row;
+
+if(distance < 18){
+
+moveTile(id);
+
+}
+
+else{
+
+const horizontal =
+Math.abs(dx)
+>
+Math.abs(dy);
+
+const gestureX =
+horizontal
+?
+Math.sign(dx)
+:
+0;
+
+const gestureY =
+horizontal
+?
+0
+:
+Math.sign(dy);
+
+if(
+gestureX === expectedX
+&&
+gestureY === expectedY
+){
+
+moveTile(id);
+
+}
+
+}
+
+clearPointer();
+
+}
+
+function clearPointer(){
+
+pointerStart = null;
+
+pointerTile = null;
+
+}
+
+function legalNeighborIndices(blank){
+
+const {
+row,
+col
+}
+=
+indexToXY(blank);
+
+const options = [];
+
+if(row > 0)
+options.push(blank - 3);
+
+if(row < 2)
+options.push(blank + 3);
+
+if(col > 0)
+options.push(blank - 1);
+
+if(col < 2)
+options.push(blank + 1);
+
+return options;
+
+}
+
+function isSolved(){
+
+return (
+
+grid[3] === "eye"
+
+&&
+
+grid[4] === "ear"
+
+&&
+
+grid[5] === "mouth"
+
+);
+
+}
+
+function shuffleByLegalMoves(
+steps = 100
+){
+
+grid =
+solvedBase.slice();
+
+let previousBlank = -1;
+
+for(
+let i=0;
+i<steps;
+i++
+){
+
+const blank =
+grid.indexOf(null);
+
+let options =
+legalNeighborIndices(blank)
+.filter(
+index =>
+index !== previousBlank
+);
+
+if(!options.length){
+
+options =
+legalNeighborIndices(blank);
+
+}
+
+const chosen =
+options[
+Math.floor(
+Math.random()
+*
+options.length
+)
+];
+
+previousBlank =
+blank;
+
+[
+grid[blank],
+grid[chosen]
+]
+=
+[
+grid[chosen],
+grid[blank]
+];
+
+}
+
+/* evita iniciar resolvido */
+
+while(isSolved()){
+
+const blank =
+grid.indexOf(null);
+
+const options =
+legalNeighborIndices(blank);
+
+const chosen =
+options[
+Math.floor(
+Math.random()
+*
+options.length
+)
+];
+
+[
+grid[blank],
+grid[chosen]
+]
+=
+[
+grid[chosen],
+grid[blank]
+];
+
+}
+
+}
+
+function resetGame(){
+
+locked = false;
+
+shell.classList.remove(
+"solved"
+);
+
+successEl.classList.remove(
+"show"
+);
+
+shuffleByLegalMoves();
+
+render();
+
+}
+
+function validateSolution(){
+
+if(!isSolved())
+return;
+
+locked = true;
+
+shell.classList.add(
+"solved"
+);
+
+[
+"eye",
+"ear",
+"mouth"
+]
+.forEach(id => {
+
+tileEls
+.get(id)
+.classList
+.add("success");
+
+});
+
+successEl.classList.add(
+"show"
+);
+
+playSuccessSound();
+
+}
+
+function ensureAudio(){
+
+if(!soundOn)
+return;
+
+if(!audioCtx){
+
+const Audio =
+window.AudioContext
+||
+window.webkitAudioContext;
+
+if(!Audio)
+return;
+
+audioCtx =
+new Audio();
+
+}
+
+if(
+audioCtx.state
+===
+"suspended"
+){
+
+audioCtx.resume();
+
+}
+
+}
+
+function playMoveSound(){
+
+if(
+!soundOn
+||
+!audioCtx
+)
+return;
+
+const now =
+audioCtx.currentTime;
+
+const osc =
+audioCtx.createOscillator();
+
+const gain =
+audioCtx.createGain();
+
+osc.type =
+"triangle";
+
+osc.frequency.setValueAtTime(
+92,
+now
+);
+
+osc.frequency.exponentialRampToValueAtTime(
+58,
+now + .09
+);
+
+gain.gain.setValueAtTime(
+.04,
+now
+);
+
+gain.gain.exponentialRampToValueAtTime(
+.0001,
+now + .11
+);
+
+osc
+.connect(gain)
+.connect(
+audioCtx.destination
+);
+
+osc.start(now);
+
+osc.stop(
+now + .12
+);
+
+}
+
+function playSuccessSound(){
+
+if(
+!soundOn
+)
+return;
+
+ensureAudio();
+
+if(!audioCtx)
+return;
+
+const now =
+audioCtx.currentTime;
+
+[
+116,
+174,
+232
+]
+.forEach(
+(freq,i) => {
+
+const osc =
+audioCtx.createOscillator();
+
+const gain =
+audioCtx.createGain();
+
+osc.frequency.value =
+freq;
+
+gain.gain.setValueAtTime(
+.04,
+now + i * .07
+);
+
+gain.gain.exponentialRampToValueAtTime(
+.0001,
+now + .5
+);
+
+osc
+.connect(gain)
+.connect(
+audioCtx.destination
+);
+
+osc.start(
+now + i * .07
+);
+
+osc.stop(
+now + .55
+);
+
+});
+
+}
+
+resetBtn.addEventListener(
+"click",
+() => {
+
+resetGame();
+
+}
+);
+
+soundBtn.addEventListener(
+"click",
+() => {
+
+soundOn =
+!soundOn;
+
+soundBtn.textContent =
+soundOn
+?
+"SOM: ON"
+:
+"SOM: OFF";
+
+if(soundOn)
+ensureAudio();
+
+}
+);
+
+fullscreenBtn.addEventListener(
+"click",
+async () => {
+
+try {
+
+if(
+!document.fullscreenElement
+&&
+document.documentElement.requestFullscreen
+){
+
+await
+document.documentElement
+.requestFullscreen();
+
+}
+
+else if(
+document.exitFullscreen
+){
+
+await
+document.exitFullscreen();
+
+}
+
+}
+catch(e){}
+
+}
+);
+
+document.addEventListener(
+"fullscreenchange",
+() => {
+
+fullscreenBtn.textContent =
+document.fullscreenElement
+?
+"SAIR DA TELA CHEIA"
+:
+"TELA CHEIA";
+
+}
+);
+
+createTiles();
+
+resetGame();
+
+})();
+</script>
+
+</body>
+</html>
